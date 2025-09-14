@@ -1,11 +1,11 @@
-# Base image
+# Base image Debian برای aarch64
 ARG BUILD_FROM=ghcr.io/home-assistant/aarch64-base-debian:14.3.2
 FROM ${BUILD_FROM}
 
-# Set environment
+# زبان و محیط
 ENV LANG C.UTF-8
 
-# نصب ابزارهای لازم
+# نصب وابستگی‌ها و ابزارها
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     build-essential \
@@ -25,7 +25,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # دانلود HyperHDR
 RUN git clone --depth=1 https://github.com/awawa-dev/HyperHDR.git /hyperhdr
 
-# Build HyperHDR
+# بیلد HyperHDR
 WORKDIR /hyperhdr
 RUN mkdir build && cd build && cmake .. && make -j$(nproc) && make install
 
@@ -33,5 +33,5 @@ RUN mkdir build && cd build && cmake .. && make -j$(nproc) && make install
 RUN mkdir -p /usr/local/share/hyperhdr/LUT \
     && cp -r /hyperhdr/bin/Lut /usr/local/share/hyperhdr/LUT
 
-# مسیر اجرای پیش‌فرض
+# اجرای پیش‌فرض
 CMD ["/usr/local/bin/HyperHDR", "--verbose"]
