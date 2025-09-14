@@ -1,37 +1,24 @@
-# Base image Debian برای aarch64
-ARG BUILD_FROM=ghcr.io/home-assistant/aarch64-base-debian:14.3.2
-FROM ${BUILD_FROM}
+# استفاده از تصویر پایه Alpine
+FROM ghcr.io/home-assistant/aarch64-base:latest
 
-# زبان و محیط
-ENV LANG C.UTF-8
-
-# نصب وابستگی‌ها و ابزارها
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# نصب ابزارهای مورد نیاز با استفاده از apk
+RUN apk update && \
+    apk add --no-cache \
     git \
-    build-essential \
+    build-base \
     cmake \
-    qtbase5-dev \
-    qtmultimedia5-dev \
-    libqt5serialport5-dev \
-    libusb-1.0-0-dev \
-    libavcodec-dev \
-    libavformat-dev \
-    libswscale-dev \
-    libv4l-dev \
+    qt5-qtbase-dev \
+    qt5-qtmultimedia-dev \
+    qt5-qtserialport-dev \
+    libusb-dev \
     ffmpeg \
-    bash \
-    && rm -rf /var/lib/apt/lists/*
+    bash
 
-# دانلود HyperHDR
-RUN git clone --depth=1 https://github.com/awawa-dev/HyperHDR.git /hyperhdr
+# کپی فایل‌های مورد نیاز به داخل کانتینر
+COPY . /app
 
-# بیلد HyperHDR
-WORKDIR /hyperhdr
-RUN mkdir build && cd build && cmake .. && make -j$(nproc) && make install
+# تنظیم دایرکتوری کاری
+WORKDIR /app
 
-# کپی LUT ها برای YUV/MJPEG
-RUN mkdir -p /usr/local/share/hyperhdr/LUT \
-    && cp -r /hyperhdr/bin/Lut /usr/local/share/hyperhdr/LUT
-
-# اجرای پیش‌فرض
-CMD ["/usr/local/bin/HyperHDR", "--verbose"]
+# دستور پیش‌فرض برای اجرای برنامه
+CMD ["./your_program"]
