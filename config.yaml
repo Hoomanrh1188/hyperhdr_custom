@@ -1,0 +1,12 @@
+name: "HyperHDR Custom"
+version: "1.0.0"
+slug: "hyperhdr_custom"
+description: "HyperHDR with full ffmpeg (MJPEG enabled)"
+arch:
+  - amd64
+  - aarch64
+  - armv7
+startup: services
+init: false
+options: {}
+schema: {}
