@@ -1,24 +1,28 @@
-# استفاده از تصویر پایه Alpine
-FROM ghcr.io/home-assistant/aarch64-base:latest
+# Base image باید Debian باشه
+ARG BUILD_FROM=ghcr.io/home-assistant/aarch64-base-debian:14.3.2
+FROM ${BUILD_FROM}
 
-# نصب ابزارهای مورد نیاز با استفاده از apk
-RUN apk update && \
-    apk add --no-cache \
-    git \
-    build-base \
-    cmake \
-    qt5-qtbase-dev \
-    qt5-qtmultimedia-dev \
-    qt5-qtserialport-dev \
-    libusb-dev \
-    ffmpeg \
-    bash
+# نصب ابزارها و ffmpeg کامل
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git build-essential cmake \
+    qtbase5-dev qtmultimedia5-dev \
+    libqt5serialport5-dev libusb-1.0-0-dev \
+    libavcodec-dev libavformat-dev libswscale-dev libv4l-dev \
+    ffmpeg bash \
+    && rm -rf /var/lib/apt/lists/*
 
-# کپی فایل‌های مورد نیاز به داخل کانتینر
-COPY . /app
+# ساخت دایرکتوری اپلیکیشن
+WORKDIR /usr/src/app
 
-# تنظیم دایرکتوری کاری
-WORKDIR /app
+# کپی سورس به داخل کانتینر
+COPY . .
 
-# دستور پیش‌فرض برای اجرای برنامه
-CMD ["./your_program"]
+# اجرای دسترسی اجرایی روی run.sh
+RUN chmod +x /usr/src/app/run.sh
+
+# کپی LUT ها به مسیر HyperHDR
+RUN mkdir -p /usr/local/share/hyperhdr/LUT \
+    && cp -r ./Lut/* /usr/local/share/hyperhdr/LUT/ || true
+
+# اجرای برنامه
+CMD [ "/usr/src/app/run.sh" ]
